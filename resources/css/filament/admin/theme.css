@@ -1,0 +1,36 @@
+@import '../../../../vendor/filament/filament/resources/css/theme.css';
+
+@source '../../../../app/Filament/**/*';
+@source '../../../../resources/views/filament/**/*';
+
+/* Linear-style dark theme: zinc base + violet accent.
+   Mirrors tokens defined in resources/css/app.css so Filament and the
+   Inertia surface share the same visual language. */
+@theme {
+    --font-sans:
+        'Inter Variable', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+    --font-mono:
+        'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+:root {
+    --fi-primary-50: oklch(0.97 0.025 295);
+    --fi-primary-100: oklch(0.93 0.06 295);
+    --fi-primary-200: oklch(0.86 0.12 290);
+    --fi-primary-300: oklch(0.78 0.16 290);
+    --fi-primary-400: oklch(0.68 0.2 288);
+    --fi-primary-500: oklch(0.55 0.218 285);
+    --fi-primary-600: oklch(0.48 0.22 285);
+    --fi-primary-700: oklch(0.4 0.2 285);
+    --fi-primary-800: oklch(0.33 0.16 285);
+    --fi-primary-900: oklch(0.26 0.12 285);
+    --fi-primary-950: oklch(0.18 0.08 285);
+}
+
+.dark {
+    /* Push Filament's dark surfaces toward zinc-950 / zinc-900 like Linear. */
+    --fi-color-gray-950: oklch(0.145 0 0);
+    --fi-color-gray-900: oklch(0.205 0 0);
+    --fi-color-gray-800: oklch(0.27 0 0);
+    --fi-color-gray-700: oklch(0.32 0 0);
+}
