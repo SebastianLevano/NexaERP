@@ -33,9 +33,13 @@ Route::middleware('auth')->group(function () {
         ->name('dashboard');
 
     Route::middleware('role:Admin|Vendedor')->group(function () {
+        Route::get('sales', [SaleController::class, 'index'])->name('sales.index');
         Route::get('sales/pos', PosController::class)->name('sales.pos');
         Route::post('sales', [SaleController::class, 'store'])->name('sales.store');
         Route::get('sales/{sale}', [SaleController::class, 'show'])->name('sales.show');
+        Route::get('sales/{sale}/pdf', [SaleController::class, 'pdf'])->name('sales.pdf');
+        Route::post('sales/{sale}/cancel', [SaleController::class, 'cancel'])->name('sales.cancel');
+        Route::post('sales/{sale}/payments', [SaleController::class, 'payment'])->name('sales.payments.store');
 
         Route::prefix('api')->group(function () {
             Route::get('products/search', ProductSearchController::class);
