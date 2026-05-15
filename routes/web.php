@@ -1,6 +1,11 @@
 <?php
 
+use App\Http\Controllers\App\CustomerSearchController;
+use App\Http\Controllers\App\CustomerStoreController;
 use App\Http\Controllers\App\DashboardController;
+use App\Http\Controllers\App\PosController;
+use App\Http\Controllers\App\ProductSearchController;
+use App\Http\Controllers\App\SaleController;
 use App\Http\Controllers\Auth\LoginController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
@@ -26,4 +31,16 @@ Route::middleware('auth')->group(function () {
     Route::get('dashboard', DashboardController::class)
         ->middleware('role:Admin|Vendedor')
         ->name('dashboard');
+
+    Route::middleware('role:Admin|Vendedor')->group(function () {
+        Route::get('sales/pos', PosController::class)->name('sales.pos');
+        Route::post('sales', [SaleController::class, 'store'])->name('sales.store');
+        Route::get('sales/{sale}', [SaleController::class, 'show'])->name('sales.show');
+
+        Route::prefix('api')->group(function () {
+            Route::get('products/search', ProductSearchController::class);
+            Route::get('customers/search', CustomerSearchController::class);
+            Route::post('customers', CustomerStoreController::class);
+        });
+    });
 });
