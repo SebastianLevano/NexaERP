@@ -2,7 +2,9 @@
 
 namespace Database\Seeders;
 
+use App\Enums\DocumentType;
 use App\Models\Category;
+use App\Models\Customer;
 use App\Models\Product;
 use App\Models\User;
 use App\Services\StockService;
@@ -71,6 +73,35 @@ class DemoDataSeeder extends Seeder
                     );
                 }
             }
+        }
+
+        $this->seedCustomers();
+    }
+
+    private function seedCustomers(): void
+    {
+        $customers = [
+            ['Distribuidora San Marcos S.A.C.', DocumentType::RUC, '20485712633', 'ventas@sanmarcos.pe', '014257821', 'Av. Argentina 1234, Lima'],
+            ['Bodega El Águila E.I.R.L.', DocumentType::RUC, '20512987441', 'contacto@elaguila.pe', '986123456', 'Jr. Lampa 567, Lima'],
+            ['Inversiones Linder S.A.C.', DocumentType::RUC, '20603411887', null, null, 'Av. La Molina 890'],
+            ['María Fernanda Quispe Vargas', DocumentType::DNI, '47128635', 'mfquispe@gmail.com', '987654321', 'Calle Los Olivos 234, San Borja'],
+            ['Carlos Augusto Ramos Tello', DocumentType::DNI, '08912447', 'cramos@outlook.com', '999123654', null],
+            ['Jhonatan Pérez Cárdenas', DocumentType::DNI, '72445981', null, '942887135', 'Av. Brasil 1450'],
+            ['Lucía Mendoza Núñez', DocumentType::DNI, '45129883', 'lucia.mendoza@gmail.com', null, 'Calle Las Begonias 88, Surco'],
+            ['Steven J. Walker', DocumentType::Passport, 'P5847291', 'swalker@example.com', null, 'Hotel Sheraton 4502, Miraflores'],
+        ];
+
+        foreach ($customers as [$name, $type, $doc, $email, $phone, $address]) {
+            Customer::firstOrCreate(
+                ['document_number' => $doc],
+                [
+                    'name' => $name,
+                    'document_type' => $type,
+                    'email' => $email,
+                    'phone' => $phone,
+                    'address' => $address,
+                ],
+            );
         }
     }
 }
