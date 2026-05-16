@@ -1,5 +1,12 @@
 # NexaERP
 
+[![CI](https://github.com/SebastianLevano/NexaERP/actions/workflows/ci.yml/badge.svg)](https://github.com/SebastianLevano/NexaERP/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](./LICENSE)
+[![PHP 8.3](https://img.shields.io/badge/PHP-8.3-777BB4?logo=php&logoColor=white)](https://www.php.net/)
+[![Laravel 13](https://img.shields.io/badge/Laravel-13-FF2D20?logo=laravel&logoColor=white)](https://laravel.com)
+[![Filament v4](https://img.shields.io/badge/Filament-v4-F59E0B)](https://filamentphp.com)
+[![Vue 3](https://img.shields.io/badge/Vue-3-4FC08D?logo=vue.js&logoColor=white)](https://vuejs.org)
+
 ERP interno para PyMEs single-tenant: inventario, ventas y clientes, con UI dark estilo Linear/Stripe.
 
 ## Stack
