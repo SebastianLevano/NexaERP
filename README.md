@@ -1,58 +1,152 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# NexaERP
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+ERP interno para PyMEs single-tenant: inventario, ventas y clientes, con UI dark estilo Linear/Stripe.
 
-## About Laravel
+## Stack
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+- **Backend**: Laravel 13 · PHP 8.3 · MySQL 8
+- **Panel back-office**: Filament v4 (tema dark custom zinc + violet)
+- **POS y vistas hero**: Inertia + Vue 3 + TypeScript + Tailwind v4 + shadcn-vue
+- **PDF**: barryvdh/laravel-dompdf
+- **Permisos**: spatie/laravel-permission
+- **Tests**: Pest 4
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Requisitos locales
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+- PHP 8.3 + extensiones PDO MySQL
+- Composer 2.x
+- Node 20+ (con npm)
+- MySQL 8 corriendo localmente
+- Sólo macOS/Linux probados (Windows debería funcionar con WSL2)
 
-## Learning Laravel
-
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
-
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
-
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
-
-## Agentic Development
-
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
+## Instalación
 
 ```bash
-composer require laravel/boost --dev
+git clone <repo> NexaERP && cd NexaERP
 
-php artisan boost:install
+# Dependencias
+composer install
+npm install
+
+# Configuración
+cp .env.example .env
+php artisan key:generate
+
+# Crear BD y usuario MySQL
+mysql -uroot -p <<SQL
+CREATE DATABASE nexaerp CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+CREATE USER 'nexaerp_user'@'localhost' IDENTIFIED BY 'TU_PASSWORD';
+GRANT ALL PRIVILEGES ON nexaerp.* TO 'nexaerp_user'@'localhost';
+FLUSH PRIVILEGES;
+SQL
+
+# Editar .env con DB_USERNAME=nexaerp_user y DB_PASSWORD=...
+
+# Migrar + sembrar datos demo
+php artisan migrate:fresh --seed
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+## Desarrollo
 
-## Contributing
+```bash
+# Terminal 1: servidor Laravel
+php artisan serve --host=127.0.0.1 --port=8080
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+# Terminal 2: Vite (HMR)
+npm run dev
+```
 
-## Code of Conduct
+Abre **http://127.0.0.1:8080** (no uses `localhost` si tienes Docker corriendo en `:8000`).
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+### Cuentas demo (password: `password`)
 
-## Security Vulnerabilities
+| Email                    | Rol      | Aterriza en        |
+| ------------------------ | -------- | ------------------ |
+| admin@nexaerp.test       | Admin    | `/dashboard`       |
+| vendedor@nexaerp.test    | Vendedor | `/dashboard`       |
+| almacen@nexaerp.test     | Almacén  | `/admin/products`  |
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+## Comandos útiles
 
-## License
+```bash
+# Tests
+./vendor/bin/pest
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+# Backup manual
+php artisan db:backup
+# (los backups quedan en storage/app/backups, retención 14 días)
+
+# Reset de datos demo
+php artisan migrate:fresh --seed
+
+# Build de assets para producción
+npm run build
+
+# Linter PHP
+./vendor/bin/pint
+```
+
+## Estructura
+
+```
+app/
+├── Enums/                 # StockMovementType, SaleStatus, PaymentMethod, DocumentType
+├── Filament/              # Back-office (panel /admin)
+│   ├── Pages/             # StockAdjustment, Settings
+│   ├── Resources/         # Category, Product, Customer, StockMovement
+│   └── Widgets/           # LowStockWidget
+├── Http/Controllers/
+│   ├── App/               # Controladores Inertia (Dashboard, Sale, Pos, búsquedas API)
+│   └── Auth/              # LoginController
+├── Models/                # Eloquent
+├── Services/              # Lógica de negocio (StockService, SaleService, InvoicePdfService)
+└── Console/Commands/      # BackupDatabaseCommand
+
+resources/js/
+├── Components/
+│   ├── data/              # EmptyState, KpiCard, SalesChart
+│   ├── sales/             # PaymentDialog, CancelSaleDialog, RecordPaymentDialog
+│   └── ui/                # Button, Input, Dialog, Toast, Skeleton, Badge, Card...
+├── Layouts/               # AppLayout.vue
+├── Pages/                 # Vistas Inertia (Dashboard, Sales/*, Auth/Login)
+├── composables/           # useSaleCart, useShortcuts
+└── lib/                   # cn, formatters
+```
+
+## Reglas de negocio
+
+- `stock_movements` es la **fuente de la verdad**. `products.stock` es un cache denormalizado actualizado vía `StockService`.
+- Confirmar una venta crea un `stock_movement type=out` por cada `sale_item`, con `reference` polimórfica a la Sale.
+- Anular una venta revierte el stock (tipo `in`) con auditoría.
+- Toda operación crítica (confirmar, anular, registrar pago, ajustar stock) corre en `DB::transaction` con `lockForUpdate` sobre `products.stock`.
+- Números de venta: `V-YYYY-NNNNN` secuencial por año, generado en transacción.
+
+## Roles y permisos
+
+| Recurso / Acción       | Admin | Vendedor | Almacén |
+| ---------------------- | :---: | :------: | :-----: |
+| Usuarios CRUD          |   ✔   |    ✘     |    ✘    |
+| Clientes CRUD          |   ✔   |    ✔     |    ✘    |
+| Productos CRUD         |   ✔   |    ✘     |    ✔    |
+| Ajuste de stock        |   ✔   |    ✘     |    ✔    |
+| Crear / cobrar venta   |   ✔   |    ✔     |    ✘    |
+| Anular venta           |   ✔   |    ✘     |    ✘    |
+| Ajustes empresa        |   ✔   |    ✘     |    ✘    |
+
+## Deploy
+
+Ver [`DEPLOY.md`](./DEPLOY.md) para el procedimiento detallado.
+
+## Backups
+
+Programar el scheduler de Laravel en producción:
+
+```bash
+* * * * * cd /var/www/nexaerp && php artisan schedule:run >> /dev/null 2>&1
+```
+
+Esto ejecuta `db:backup` diario a las 02:00. Los archivos quedan en `storage/app/backups/` (gzipped) con retención de 14 días.
+
+## Soporte / contacto
+
+Issues internos del proyecto.

@@ -25,3 +25,7 @@ _ide_helper.php
 Homestead.json
 Homestead.yaml
 Thumbs.db
+
+# NexaERP generated artifacts
+/storage/app/backups/*.gz
+/storage/app/docs/*.pdf
