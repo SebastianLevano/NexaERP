@@ -10,6 +10,7 @@ import {
     PanelLeft,
 } from 'lucide-vue-next';
 import type { AppPageProps } from '@/types';
+import ToastContainer from '@/Components/ui/ToastContainer.vue';
 
 const page = usePage<AppPageProps>();
 const user = computed(() => page.props.auth.user);
@@ -42,6 +43,14 @@ const initials = computed(() => {
 
 <template>
     <div class="flex min-h-screen bg-background text-foreground">
+        <!-- Skip to main (keyboard accessibility) -->
+        <a
+            href="#main-content"
+            class="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-50 focus:rounded-md focus:bg-accent focus:text-accent-foreground focus:px-3 focus:py-1.5 focus:text-xs"
+        >
+            Saltar al contenido
+        </a>
+
         <!-- Sidebar -->
         <aside
             class="hidden md:flex w-60 shrink-0 flex-col border-r border-border bg-background"
@@ -59,8 +68,10 @@ const initials = computed(() => {
                     v-for="item in nav"
                     :key="item.href"
                     :href="item.href"
+                    :aria-current="isActive(item.href) ? 'page' : undefined"
                     :class="[
                         'flex items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-sm transition-colors duration-150',
+                        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40',
                         isActive(item.href)
                             ? 'bg-surface text-foreground'
                             : 'text-muted-foreground hover:bg-surface hover:text-foreground',
@@ -99,7 +110,11 @@ const initials = computed(() => {
             <header
                 class="flex h-14 items-center gap-3 border-b border-border bg-background/80 backdrop-blur px-4 sticky top-0 z-10"
             >
-                <button class="md:hidden p-1.5 rounded-md hover:bg-surface">
+                <button
+                    type="button"
+                    aria-label="Abrir menú lateral"
+                    class="md:hidden p-1.5 rounded-md hover:bg-surface focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40"
+                >
                     <PanelLeft class="h-4 w-4" :stroke-width="1.5" />
                 </button>
                 <div
@@ -114,9 +129,11 @@ const initials = computed(() => {
                     </kbd>
                 </div>
             </header>
-            <main class="flex-1">
+            <main id="main-content" class="flex-1">
                 <slot />
             </main>
         </div>
+
+        <ToastContainer />
     </div>
 </template>

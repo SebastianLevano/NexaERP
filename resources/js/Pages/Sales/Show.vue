@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
-import { Head, Link, usePage } from '@inertiajs/vue3';
+import { Head, Link } from '@inertiajs/vue3';
 import AppLayout from '@/Layouts/AppLayout.vue';
 import Card from '@/Components/ui/Card.vue';
 import Badge from '@/Components/ui/Badge.vue';
@@ -8,15 +8,7 @@ import Button from '@/Components/ui/Button.vue';
 import RecordPaymentDialog from '@/Components/sales/RecordPaymentDialog.vue';
 import CancelSaleDialog from '@/Components/sales/CancelSaleDialog.vue';
 import { formatCurrency, formatDate } from '@/lib/formatters';
-import {
-    ArrowLeft,
-    CheckCircle2,
-    AlertCircle,
-    Download,
-    XCircle,
-    Plus,
-} from 'lucide-vue-next';
-import type { AppPageProps } from '@/types';
+import { ArrowLeft, Download, XCircle, Plus } from 'lucide-vue-next';
 
 interface SaleProps {
     id: number;
@@ -55,10 +47,6 @@ const props = defineProps<{
     canCancel: boolean;
 }>();
 
-const page = usePage<AppPageProps>();
-const flashSuccess = computed(() => page.props.flash?.success);
-const flashError = computed(() => page.props.flash?.error);
-
 const paymentOpen = ref(false);
 const cancelOpen = ref(false);
 
@@ -83,22 +71,6 @@ const canShowCancel = computed(
 
     <AppLayout>
         <div class="p-6 lg:p-8 max-w-4xl space-y-6">
-            <!-- Flash messages -->
-            <div
-                v-if="flashSuccess"
-                class="flex items-center gap-2 rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-3 py-2 text-sm text-emerald-300"
-            >
-                <CheckCircle2 class="h-4 w-4" :stroke-width="1.5" />
-                {{ flashSuccess }}
-            </div>
-            <div
-                v-if="flashError"
-                class="flex items-center gap-2 rounded-lg border border-rose-500/30 bg-rose-500/10 px-3 py-2 text-sm text-rose-300"
-            >
-                <AlertCircle class="h-4 w-4" :stroke-width="1.5" />
-                {{ flashError }}
-            </div>
-
             <!-- Header -->
             <header class="flex items-start justify-between gap-4 flex-wrap">
                 <div>

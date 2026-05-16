@@ -8,6 +8,8 @@ import Input from '@/Components/ui/Input.vue';
 import Card from '@/Components/ui/Card.vue';
 import Badge from '@/Components/ui/Badge.vue';
 import Kbd from '@/Components/ui/Kbd.vue';
+import Skeleton from '@/Components/ui/Skeleton.vue';
+import EmptyState from '@/Components/data/EmptyState.vue';
 import PaymentDialog from '@/Components/sales/PaymentDialog.vue';
 import { useSaleCart, type CartProduct, type CartCustomer } from '@/composables/useSaleCart';
 import { useShortcuts } from '@/composables/useShortcuts';
@@ -168,9 +170,21 @@ function onPaymentSuccess() {
                 <div class="flex-1 overflow-y-auto p-4">
                     <div
                         v-if="loadingProducts && products.length === 0"
-                        class="text-center text-xs text-muted-foreground py-12"
+                        class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3"
                     >
-                        Buscando productos…
+                        <div
+                            v-for="i in 8"
+                            :key="i"
+                            class="rounded-xl border border-border bg-surface/40 p-3 space-y-3"
+                        >
+                            <div class="flex items-start justify-between">
+                                <Skeleton class="h-3 w-16" />
+                                <Skeleton class="h-4 w-10" />
+                            </div>
+                            <Skeleton class="h-4 w-3/4" />
+                            <Skeleton class="h-3 w-1/2" />
+                            <Skeleton class="h-5 w-20" />
+                        </div>
                     </div>
                     <div
                         v-else-if="products.length === 0"
@@ -294,20 +308,12 @@ function onPaymentSuccess() {
 
                 <!-- Líneas -->
                 <div class="flex-1 overflow-y-auto">
-                    <div
+                    <EmptyState
                         v-if="cart.isEmpty.value"
-                        class="h-full flex flex-col items-center justify-center text-center px-6"
-                    >
-                        <div
-                            class="flex h-10 w-10 items-center justify-center rounded-lg bg-surface-elevated mb-3"
-                        >
-                            <ShoppingCart class="h-5 w-5 text-muted-foreground" :stroke-width="1.5" />
-                        </div>
-                        <p class="text-sm font-medium">Carrito vacío</p>
-                        <p class="mt-1 text-xs text-muted-foreground">
-                            Selecciona productos a la izquierda
-                        </p>
-                    </div>
+                        :icon="ShoppingCart"
+                        title="Carrito vacío"
+                        description="Selecciona productos a la izquierda"
+                    />
                     <ul v-else class="divide-y divide-border">
                         <li
                             v-for="line in cart.state.lines"

@@ -7,6 +7,7 @@ import Select from '@/Components/ui/Select.vue';
 import Button from '@/Components/ui/Button.vue';
 import Badge from '@/Components/ui/Badge.vue';
 import Card from '@/Components/ui/Card.vue';
+import EmptyState from '@/Components/data/EmptyState.vue';
 import { formatCurrency, formatDate } from '@/lib/formatters';
 import {
     Search,
@@ -168,15 +169,14 @@ const exportUrl = computed(() => {
 
             <!-- Tabla -->
             <Card :padded="false">
-                <div v-if="sales.data.length === 0" class="py-16 text-center">
-                    <div class="flex h-10 w-10 mx-auto items-center justify-center rounded-lg bg-surface-elevated mb-3">
-                        <ReceiptIcon class="h-5 w-5 text-muted-foreground" :stroke-width="1.5" />
-                    </div>
-                    <p class="text-sm font-medium">Sin resultados</p>
-                    <p class="mt-1 text-xs text-muted-foreground">
-                        {{ hasFilters ? 'Prueba ajustando los filtros.' : 'Aún no hay ventas registradas.' }}
-                    </p>
-                </div>
+                <EmptyState
+                    v-if="sales.data.length === 0"
+                    :icon="ReceiptIcon"
+                    title="Sin resultados"
+                    :description="hasFilters
+                        ? 'Prueba ajustando los filtros.'
+                        : 'Aún no hay ventas registradas.'"
+                />
 
                 <table v-else class="w-full text-sm">
                     <thead class="text-[11px] text-muted-foreground uppercase tracking-wide">
