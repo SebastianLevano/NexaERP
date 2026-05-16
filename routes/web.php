@@ -34,6 +34,7 @@ Route::middleware('auth')->group(function () {
 
     Route::middleware('role:Admin|Vendedor')->group(function () {
         Route::get('sales', [SaleController::class, 'index'])->name('sales.index');
+        Route::get('sales/export', [SaleController::class, 'export'])->name('sales.export');
         Route::get('sales/pos', PosController::class)->name('sales.pos');
         Route::post('sales', [SaleController::class, 'store'])->name('sales.store');
         Route::get('sales/{sale}', [SaleController::class, 'show'])->name('sales.show');

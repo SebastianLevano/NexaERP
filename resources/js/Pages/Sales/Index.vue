@@ -14,6 +14,7 @@ import {
     ChevronLeft,
     ChevronRight,
     Receipt as ReceiptIcon,
+    Download,
 } from 'lucide-vue-next';
 
 interface SaleRow {
@@ -91,6 +92,16 @@ const statusVariant = (s: string) =>
 const hasFilters = computed(
     () => q.value || status.value || from.value || until.value,
 );
+
+const exportUrl = computed(() => {
+    const params = new URLSearchParams();
+    if (q.value) params.append('q', q.value);
+    if (status.value) params.append('status', status.value);
+    if (from.value) params.append('from', from.value);
+    if (until.value) params.append('until', until.value);
+    const qs = params.toString();
+    return '/sales/export' + (qs ? `?${qs}` : '');
+});
 </script>
 
 <template>
@@ -106,12 +117,20 @@ const hasFilters = computed(
                         {{ sales.meta.total }} venta{{ sales.meta.total === 1 ? '' : 's' }} registrada{{ sales.meta.total === 1 ? '' : 's' }}
                     </p>
                 </div>
-                <Link href="/sales/pos">
-                    <Button size="md">
-                        <Plus class="h-4 w-4" :stroke-width="1.5" />
-                        Nueva venta
-                    </Button>
-                </Link>
+                <div class="flex items-center gap-2">
+                    <a :href="exportUrl" download>
+                        <Button variant="outline" size="md">
+                            <Download class="h-4 w-4" :stroke-width="1.5" />
+                            Exportar CSV
+                        </Button>
+                    </a>
+                    <Link href="/sales/pos">
+                        <Button size="md">
+                            <Plus class="h-4 w-4" :stroke-width="1.5" />
+                            Nueva venta
+                        </Button>
+                    </Link>
+                </div>
             </header>
 
             <!-- Filtros -->

@@ -16,6 +16,7 @@ use Illuminate\Validation\Rules\Enum;
 use Inertia\Inertia;
 use Inertia\Response;
 use RuntimeException;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class SaleController extends Controller
 {
@@ -171,6 +172,65 @@ class SaleController extends Controller
         }
 
         return back()->with('success', 'Pago registrado correctamente.');
+    }
+
+    public function export(Request $request): StreamedResponse
+    {
+        $filters = $request->validate([
+            'q' => ['nullable', 'string', 'max:100'],
+            'status' => ['nullable', new Enum(SaleStatus::class)],
+            'from' => ['nullable', 'date'],
+            'until' => ['nullable', 'date'],
+        ]);
+
+        $query = Sale::query()->with(['customer:id,name', 'seller:id,name'])->orderBy('issued_at');
+
+        if ($filters['q'] ?? null) {
+            $term = $filters['q'];
+            $query->where(fn ($q) => $q
+                ->where('number', 'like', "%{$term}%")
+                ->orWhereHas('customer', fn ($q) => $q->where('name', 'like', "%{$term}%")));
+        }
+        if ($filters['status'] ?? null) {
+            $query->where('status', $filters['status']);
+        }
+        if ($filters['from'] ?? null) {
+            $query->whereDate('issued_at', '>=', $filters['from']);
+        }
+        if ($filters['until'] ?? null) {
+            $query->whereDate('issued_at', '<=', $filters['until']);
+        }
+
+        $filename = 'ventas_'.now()->format('Y-m-d_His').'.csv';
+
+        return response()->streamDownload(function () use ($query) {
+            $handle = fopen('php://output', 'w');
+            // BOM para que Excel detecte UTF-8
+            fwrite($handle, "\xEF\xBB\xBF");
+            fputcsv($handle, [
+                'Número', 'Fecha', 'Cliente', 'Vendedor', 'Estado',
+                'Subtotal', 'IGV', 'Total', 'Pagado', 'Saldo',
+            ]);
+            $query->chunk(500, function ($chunk) use ($handle) {
+                foreach ($chunk as $sale) {
+                    fputcsv($handle, [
+                        $sale->number,
+                        $sale->issued_at?->format('Y-m-d H:i'),
+                        $sale->customer?->name ?? '',
+                        $sale->seller?->name ?? '',
+                        $sale->status->label(),
+                        number_format((float) $sale->subtotal, 2, '.', ''),
+                        number_format((float) $sale->tax, 2, '.', ''),
+                        number_format((float) $sale->total, 2, '.', ''),
+                        number_format((float) $sale->paid_amount, 2, '.', ''),
+                        number_format($sale->balance(), 2, '.', ''),
+                    ]);
+                }
+            });
+            fclose($handle);
+        }, $filename, [
+            'Content-Type' => 'text/csv; charset=UTF-8',
+        ]);
     }
 
     public function pdf(Sale $sale, InvoicePdfService $pdf): HttpResponse
