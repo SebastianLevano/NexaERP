@@ -14,5 +14,7 @@ abstract class TestCase extends BaseTestCase
         parent::setUp();
 
         $this->withoutVite();
+
+        config()->set('inertia.testing.ensure_pages_exist', false);
     }
 }
